@@ -1,4 +1,5 @@
 import { CreateProduct } from './dto/create-product.dto';
+import { GetProductByFilter } from './dto/get-products-by-filter.dto';
 import { IProduct } from './product.model';
 import { ProductsService } from './products.service';
 import {
@@ -9,6 +10,7 @@ import {
   Patch,
   Get,
   Body,
+  Query,
 } from '@nestjs/common';
 
 @Controller('products')
@@ -16,7 +18,10 @@ export class ProductsController {
   constructor(private productService: ProductsService) {}
 
   @Get()
-  findAll(): IProduct[] {
+  findAll(@Query() productFilters: GetProductByFilter): IProduct[] {
+    if (Object.keys(productFilters).length > 0) {
+      return this.productService.findWithFilters(productFilters);
+    }
     return this.productService.findAll();
   }
 

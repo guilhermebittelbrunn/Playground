@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, HttpException } from '@nestjs/common';
 import { IUser } from './user.model';
 import { CreateUser } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
@@ -32,7 +32,9 @@ export class UsersService {
     const { name, password } = loginUser;
     try {
       const findUser = this.users.find((user) => user.name === name);
-      if (findUser === undefined) throw 'User not found';
+      if (findUser === undefined) {
+        throw new HttpException('User not found', HttpStatus.TOO_MANY_REQUESTS);
+      }
 
       if (bcrypt.compareSync(password, findUser.password)) {
         const { age } = findUser;
@@ -40,7 +42,7 @@ export class UsersService {
         return { userData: { name, age }, token };
       }
     } catch (error: any) {
-      return { error, code: HttpStatus.FORBIDDEN };
+      return error;
     }
   }
 
